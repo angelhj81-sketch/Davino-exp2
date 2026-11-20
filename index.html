@@ -74,6 +74,9 @@
   .qkr{font-size:15px;color:var(--muted);text-align:center;margin:-14px 0 24px;}
   .comp-btn{display:block;width:100%;max-width:520px;margin:0 auto 12px !important;padding:14px 22px !important;line-height:1.35;}
   .comp-btn .en{display:block;font-size:19px;font-weight:600;color:var(--ink);}
+  .comp-btn{white-space:normal !important;height:auto !important;max-width:100% !important;text-align:center;overflow-wrap:break-word;}
+  .comp-btn .en,.comp-btn .kr{white-space:normal;overflow-wrap:break-word;}
+  .jspsych-btn-group-grid{width:100%;max-width:640px;margin:0 auto;}
   .comp-btn .kr{display:block;font-size:14px;font-weight:400;color:var(--muted);margin-top:4px;}
   .focus-box{border:2px solid var(--accent);background:var(--accent-bg);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:15px;line-height:1.6;}
 </style>
@@ -118,8 +121,8 @@ const QUICK_TEST = true;
 const PRACTICE_Q_EN = "Choose the sentence that matches the man just described.";
 const PRACTICE_Q_KO = "방금 묘사된 남자의 특징과 일치하는 문장을 고르세요.";
 const PRACTICE_ALONE = [
-  {audio:"stp1st_vino.wav", q:"Who did you hear?", qk:"누구라고 들었나요?"},
-  {audio:"stp7th_vino.wav", q:"Who did you hear?", qk:"누구라고 들었나요?"},
+  {audio:"stp1st_vino.wav", q:"Who did you hear?", qk:"들은 이름을 선택해주세요."},
+  {audio:"stp7th_vino.wav", q:"Who did you hear?", qk:"들은 이름을 선택해주세요."},
 ];
 const PRACTICE_CTX = [
   {audio:"tall_stp1.wav", q:"Who is tall?", qk:"누가 키가 큰 사람인가요?",
@@ -139,41 +142,41 @@ const PRACTICE_CTX = [
 const TYPE_LABEL = {alone:"Continuum alone", ctx:"Context+Continuum", comp:"Comprehension task"};
 const WORD_INFO = {"thin":{"level":1,"ipa":"/θɪn/","final":"/n/","place":"Alv","voicing":"voiced"},"boring":{"level":1,"ipa":"/ˈbɔːrɪŋ/","final":"/ŋ/","place":"Velar","voicing":"voiced"},"nice":{"level":2,"ipa":"/naɪs/","final":"/s/","place":"Alv","voicing":"voiceless"},"rich":{"level":2,"ipa":"/rɪtʃ/","final":"/tʃ/","place":"PA","voicing":"voiceless"},"famous":{"level":3,"ipa":"/ˈfeɪməs/","final":"/s/","place":"Alv","voicing":"voiceless"},"foolish":{"level":3,"ipa":"/ˈfuːlɪʃ/","final":"/ʃ/","place":"PA","voicing":"voiceless"},"cool":{"level":4,"ipa":"/kuːl/","final":"/l/","place":"Alv","voicing":"voiced"},"poor":{"level":4,"ipa":"/pʊr/","final":"/r/","place":"PA","voicing":"voiced"},"wise":{"level":5,"ipa":"/waɪz/","final":"/z/","place":"Alv","voicing":"voiced"},"huge":{"level":5,"ipa":"/hjuːdʒ/","final":"/dʒ/","place":"PA","voicing":"voiced"},"advise":{"level":6,"ipa":"/ədˈvaɪz/","final":"/z/","place":"Alv","voicing":"voiced"},"massage":{"level":6,"ipa":"/məˈsɑːʒ/","final":"/ʒ/","place":"PA","voicing":"voiced"}};
 const ITEMS = [
-{"id":1,"t":"alone","s":1,"r":1,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":2,"t":"alone","s":1,"r":2,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":3,"t":"alone","s":1,"r":3,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":4,"t":"alone","s":1,"r":4,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":5,"t":"alone","s":1,"r":5,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":6,"t":"alone","s":2,"r":1,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":7,"t":"alone","s":2,"r":2,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":8,"t":"alone","s":2,"r":3,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":9,"t":"alone","s":2,"r":4,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":10,"t":"alone","s":2,"r":5,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":11,"t":"alone","s":3,"r":1,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":12,"t":"alone","s":3,"r":2,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":13,"t":"alone","s":3,"r":3,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":14,"t":"alone","s":3,"r":4,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":15,"t":"alone","s":3,"r":5,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":16,"t":"alone","s":4,"r":1,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":17,"t":"alone","s":4,"r":2,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":18,"t":"alone","s":4,"r":3,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":19,"t":"alone","s":4,"r":4,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":20,"t":"alone","s":4,"r":5,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":21,"t":"alone","s":5,"r":1,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":22,"t":"alone","s":5,"r":2,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":23,"t":"alone","s":5,"r":3,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":24,"t":"alone","s":5,"r":4,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":25,"t":"alone","s":5,"r":5,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":26,"t":"alone","s":6,"r":1,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":27,"t":"alone","s":6,"r":2,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":28,"t":"alone","s":6,"r":3,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":29,"t":"alone","s":6,"r":4,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":30,"t":"alone","s":6,"r":5,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":31,"t":"alone","s":7,"r":1,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":32,"t":"alone","s":7,"r":2,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":33,"t":"alone","s":7,"r":3,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":34,"t":"alone","s":7,"r":4,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
-{"id":35,"t":"alone","s":7,"r":5,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"누구라고 들었나요?"},
+{"id":1,"t":"alone","s":1,"r":1,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":2,"t":"alone","s":1,"r":2,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":3,"t":"alone","s":1,"r":3,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":4,"t":"alone","s":1,"r":4,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":5,"t":"alone","s":1,"r":5,"a":"stp1st_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":6,"t":"alone","s":2,"r":1,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":7,"t":"alone","s":2,"r":2,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":8,"t":"alone","s":2,"r":3,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":9,"t":"alone","s":2,"r":4,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":10,"t":"alone","s":2,"r":5,"a":"stp2nd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":11,"t":"alone","s":3,"r":1,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":12,"t":"alone","s":3,"r":2,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":13,"t":"alone","s":3,"r":3,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":14,"t":"alone","s":3,"r":4,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":15,"t":"alone","s":3,"r":5,"a":"stp3rd_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":16,"t":"alone","s":4,"r":1,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":17,"t":"alone","s":4,"r":2,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":18,"t":"alone","s":4,"r":3,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":19,"t":"alone","s":4,"r":4,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":20,"t":"alone","s":4,"r":5,"a":"stp4th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":21,"t":"alone","s":5,"r":1,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":22,"t":"alone","s":5,"r":2,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":23,"t":"alone","s":5,"r":3,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":24,"t":"alone","s":5,"r":4,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":25,"t":"alone","s":5,"r":5,"a":"stp5th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":26,"t":"alone","s":6,"r":1,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":27,"t":"alone","s":6,"r":2,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":28,"t":"alone","s":6,"r":3,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":29,"t":"alone","s":6,"r":4,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":30,"t":"alone","s":6,"r":5,"a":"stp6th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":31,"t":"alone","s":7,"r":1,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":32,"t":"alone","s":7,"r":2,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":33,"t":"alone","s":7,"r":3,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":34,"t":"alone","s":7,"r":4,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
+{"id":35,"t":"alone","s":7,"r":5,"a":"stp7th_vino.wav","q":"Who did you hear?","qk":"들은 이름을 선택해주세요."},
 {"id":36,"t":"ctx","w":"thin","s":1,"r":1,"a":"thin_stp1.wav","q":"Who is thin?","qk":"누가 마른 사람인가요?"},
 {"id":37,"t":"ctx","w":"thin","s":1,"r":2,"a":"thin_stp1.wav","q":"Who is thin?","qk":"누가 마른 사람인가요?"},
 {"id":38,"t":"ctx","w":"thin","s":1,"r":3,"a":"thin_stp1.wav","q":"Who is thin?","qk":"누가 마른 사람인가요?"},
@@ -654,16 +657,16 @@ const ITEMS = [
 {"id":513,"t":"comp","w":"huge","q":"Choose the sentence that matches the man just described.","qk":"방금 묘사된 남자의 특징과 일치하는 문장을 고르세요.","o1":"It would take three people to move him.","o2":"A strong wind could blow him over.","o1k":"그를 옮기려면 세 명은 필요하다.","o2k":"센 바람에도 쓰러질 것 같다.","ans":"It would take three people to move him."},
 {"id":514,"t":"comp","w":"huge","q":"Choose the sentence that matches the man just described.","qk":"방금 묘사된 남자의 특징과 일치하는 문장을 고르세요.","o1":"He has to turn sideways to get through the door.","o2":"He can slip through a narrow gap.","o1k":"그는 문을 지나려면 몸을 옆으로 돌려야 한다.","o2k":"그는 좁은 틈도 쉽게 빠져나간다.","ans":"He has to turn sideways to get through the door."},
 {"id":515,"t":"comp","w":"huge","q":"Choose the sentence that matches the man just described.","qk":"방금 묘사된 남자의 특징과 일치하는 문장을 고르세요.","o1":"His wrists are tiny.","o2":"His hands are as big as plates.","o1k":"그는 손목이 아주 가늘다.","o2k":"그의 손은 접시만큼 크다.","ans":"His hands are as big as plates."},
-{"id":516,"t":"comp","w":"advise","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"His problem finally got solved.","o2":"His sore muscles finally loosened up.","o1k":"그의 고민이 마침내 해결되었다.","o2k":"그의 뭉친 근육이 마침내 풀렸다.","ans":"His problem finally got solved."},
-{"id":517,"t":"comp","w":"advise","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"His shoulders feel light now.","o2":"He knows what to do now.","o1k":"그는 이제 어깨가 가벼워졌다.","o2k":"그는 이제 무엇을 해야 할지 안다.","ans":"He knows what to do now."},
-{"id":518,"t":"comp","w":"advise","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"His stiff neck feels better.","o2":"He made up his mind after talking it over.","o1k":"뻣뻣하던 목이 한결 나아졌다.","o2k":"그는 이야기를 나눈 뒤 마음을 정했다.","ans":"He made up his mind after talking it over."},
-{"id":519,"t":"comp","w":"advise","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"He feels less confused.","o2":"He feels less sore.","o1k":"그는 혼란스러운 마음이 한결 가라앉았다.","o2k":"그는 근육통이 한결 덜해졌다.","ans":"He feels less confused."},
-{"id":520,"t":"comp","w":"advise","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"He found a way out of his trouble.","o2":"His back pain went away.","o1k":"그는 곤경에서 벗어날 방법을 찾았다.","o2k":"허리 통증이 사라졌다.","ans":"He found a way out of his trouble."},
-{"id":521,"t":"comp","w":"massage","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"His problem finally got solved.","o2":"His sore muscles finally loosened up.","o1k":"그의 고민이 마침내 해결되었다.","o2k":"그의 뭉친 근육이 마침내 풀렸다.","ans":"His sore muscles finally loosened up."},
-{"id":522,"t":"comp","w":"massage","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"His shoulders feel light now.","o2":"He knows what to do now.","o1k":"그는 이제 어깨가 가벼워졌다.","o2k":"그는 이제 무엇을 해야 할지 안다.","ans":"His shoulders feel light now."},
-{"id":523,"t":"comp","w":"massage","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"He made up his mind after talking it over.","o2":"His stiff neck feels better.","o1k":"그는 이야기를 나눈 뒤 마음을 정했다.","o2k":"뻣뻣하던 목이 한결 나아졌다.","ans":"His stiff neck feels better."},
-{"id":524,"t":"comp","w":"massage","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"He feels less confused.","o2":"He feels less sore.","o1k":"그는 혼란스러운 마음이 한결 가라앉았다.","o2k":"그는 근육통이 한결 덜해졌다.","ans":"He feels less sore."},
-{"id":525,"t":"comp","w":"massage","q":"Choose the sentence that matches the man's situation.","qk":"방금 묘사된 남자의 상태와 일치하는 문장을 고르세요.","o1":"His back pain went away.","o2":"He found a way out of his trouble.","o1k":"허리 통증이 사라졌다.","o2k":"그는 곤경에서 벗어날 방법을 찾았다.","ans":"His back pain went away."}
+{"id":516,"t":"comp","w":"advise","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, I will give him some hints.","o2":"Okay, I will add some sugar to the soup.","o1k":"알겠어요, 그에게 힌트를 좀 줄게요.","o2k":"알겠어요, 수프에 설탕을 좀 넣을게요.","ans":"Alright, I will give him some hints."},
+{"id":517,"t":"comp","w":"advise","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Sure, I will water the plants tomorrow.","o2":"Okay, I will tell him what he should do.","o1k":"물론이죠, 내일 화분에 물을 줄게요.","o2k":"알겠어요, 그가 무엇을 해야 할지 말해 줄게요.","ans":"Okay, I will tell him what he should do."},
+{"id":518,"t":"comp","w":"advise","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, I will wash the car this weekend.","o2":"Sure, I will help him decide what to do.","o1k":"알겠어요, 이번 주말에 세차를 할게요.","o2k":"물론이죠, 그가 어떻게 할지 정하도록 도울게요.","ans":"Sure, I will help him decide what to do."},
+{"id":519,"t":"comp","w":"advise","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, I will give him a few tips.","o2":"Okay, I will fix the broken chair.","o1k":"알겠어요, 그에게 몇 가지 조언을 해 줄게요.","o2k":"알겠어요, 부서진 의자를 고칠게요.","ans":"Alright, I will give him a few tips."},
+{"id":520,"t":"comp","w":"advise","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Okay, I will tell him what I think.","o2":"Sure, I will bring some snacks to the party.","o1k":"알겠어요, 제 생각을 그에게 말해 줄게요.","o2k":"물론이죠, 파티에 간식을 좀 가져갈게요.","ans":"Okay, I will tell him what I think."},
+{"id":521,"t":"comp","w":"massage","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, we can go skiing tonight.","o2":"Okay, I will make sure his muscles loosen up.","o1k":"좋아요, 오늘 밤에 스키를 타러 가도 돼요.","o2k":"알겠어요, 그의 근육이 풀리도록 해 줄게요.","ans":"Okay, I will make sure his muscles loosen up."},
+{"id":522,"t":"comp","w":"massage","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, I will rub his sore shoulders.","o2":"Okay, I will buy some milk on my way home.","o1k":"알겠어요, 그의 뭉친 어깨를 주물러 줄게요.","o2k":"알겠어요, 집에 가는 길에 우유를 좀 살게요.","ans":"Alright, I will rub his sore shoulders."},
+{"id":523,"t":"comp","w":"massage","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Sure, I will turn on the lights.","o2":"Sure, I will rub his stiff neck.","o1k":"물론이죠, 불을 켤게요.","o2k":"물론이죠, 그의 뻣뻣한 목을 주물러 줄게요.","ans":"Sure, I will rub his stiff neck."},
+{"id":524,"t":"comp","w":"massage","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, I will cook dinner tonight.","o2":"Okay, I will rub his tight back.","o1k":"알겠어요, 오늘 저녁은 제가 요리할게요.","o2k":"알겠어요, 그의 뻣뻣한 허리를 주물러 줄게요.","ans":"Okay, I will rub his tight back."},
+{"id":525,"t":"comp","w":"massage","q":"Choose the most natural reply to the request you just heard.","qk":"방금 들은 요청에 가장 자연스러운 대답을 고르세요.","o1":"Alright, I will rub his tired legs.","o2":"Okay, I will pick him up at the station.","o1k":"알겠어요, 그의 피곤한 다리를 주물러 줄게요.","o2k":"알겠어요, 역으로 그를 데리러 갈게요.","ans":"Alright, I will rub his tired legs."}
 ];
 
 // 영어 소리 맞추기 과제 (본 실험 후 실시). 제시어의 밑줄 친 소리와 같은 소리가 든 단어를 두 오디오 중에서 고름.
@@ -739,7 +742,7 @@ async function flushResponses(force){
   let ok=false;
   for(let attempt=1; attempt<=3 && !ok; attempt++){
     try{
-      const {error} = await sb.from('experiment_data_v3').insert(batch);
+      const {error} = await sb.from('experiment_data').insert(batch);
       if(!error){ ok=true; savedCount+=batch.length; slog(`saved ${savedCount}`); }
       else throw error;
     }catch(e){ await new Promise(r=>setTimeout(r, 800*attempt)); }
@@ -1046,14 +1049,14 @@ function processSurvey(){
   document.body.classList.toggle('hide-ko', A.l1==='English');
   row.headphone_score=null; row.headphone_pass=null;
   row.eng_task_score=null; row.eng_task_n_ŋ=null; row.eng_task_s_ʃ=null; row.eng_task_tʃ_s=null; row.eng_task_l_r=null; row.eng_task_z_ʒ=null; row.eng_task_z_dʒ=null;
-  SUBJ = Object.assign({}, row); delete SUBJ.eligible; delete SUBJ.exclusion_reason;   // experiment_data_v3 에는 자격 통과자만 들어가므로 불필요
-  saveSubject(row, eligible);   // subjects_v3: 모두 저장 / experiment_data_v3: 자격 통과자만
+  SUBJ = Object.assign({}, row); delete SUBJ.eligible; delete SUBJ.exclusion_reason;   // experiment_data 에는 자격 통과자만 들어가므로 불필요
+  saveSubject(row, eligible);   // subjects: 모두 저장 / experiment_data: 자격 통과자만
   return{ok:true, eligible, reason};
 }
 
 // 설문 저장
-//  · subjects_v3 : 설문에 응답한 모든 참가자 1행씩 (자격 미달로 탈락한 참가자 포함, eligible 열로 구분)
-//  · experiment_data_v3 : 자격 통과자만, 'Survey' 행 1개 (참가자 정보 + 빈 문항 칸)
+//  · subjects : 설문에 응답한 모든 참가자 1행씩 (자격 미달로 탈락한 참가자 포함, eligible 열로 구분)
+//  · experiment_data : 자격 통과자만, 'Survey' 행 1개 (참가자 정보 + 빈 문항 칸)
 async function insertWithRetry(table, obj){
   for(let attempt=1; attempt<=3; attempt++){
     try{ const {error}=await sb.from(table).insert(obj); if(!error) return true; else throw error; }
@@ -1063,11 +1066,11 @@ async function insertWithRetry(table, obj){
 }
 async function saveSubject(row, eligible){
   const sub = Object.assign({}, row);
-  const ok1 = await insertWithRetry('subjects_v3', sub);
+  const ok1 = await insertWithRetry('subjects', sub);
   let ok2 = true;
   if(eligible){
     const full = Object.assign({}, row, ITEM_BLANK, {trial_type:'Survey'}); delete full.eligible; delete full.exclusion_reason;
-    ok2 = await insertWithRetry('experiment_data_v3', full);
+    ok2 = await insertWithRetry('experiment_data', full);
     if(!ok2){ try{ localStorage.setItem('dg3_subject_backup', JSON.stringify(full)); }catch(e){} }
   }
   if(ok1 && ok2){ subjectSaved=true; slog('subject saved'); }
@@ -1081,7 +1084,7 @@ async function waitForSubject(maxMs){
   return subjectSaved;
 }
 
-// 점수를 subjects_v3 의 참가자 행에 기록 (서버 함수 update_subject_scores: 이미 값이 있으면 덮어쓰지 않음)
+// 점수를 subjects 의 참가자 행에 기록 (서버 함수 update_subject_scores: 이미 값이 있으면 덮어쓰지 않음)
 async function rpcScores(params){
   await waitForSubject(8000);
   params.p_id = participantCode;
@@ -1094,7 +1097,7 @@ async function rpcScores(params){
   slog('scores save FAILED'); return false;
 }
 
-// 헤드폰 체크 점수: 이후 모든 행의 참가자 열에 들어가고, 점수 확인용 'Headphone check' 행도 1개 저장, subjects_v3 에도 기록
+// 헤드폰 체크 점수: 이후 모든 행의 참가자 열에 들어가고, 점수 확인용 'Headphone check' 행도 1개 저장, subjects 에도 기록
 async function saveHpScore(){
   if(hpScore===null) return;
   SUBJ.headphone_score = hpScore;
@@ -1104,7 +1107,7 @@ async function saveHpScore(){
   await rpcScores({p_hp:hpScore, p_hp_pass:(hpScore>=HP_PASS)});
 }
 
-// 영어 소리 맞추기 점수 (30점 만점, 소리 쌍별 점수 포함)를 subjects_v3 에 기록
+// 영어 소리 맞추기 점수 (30점 만점, 소리 쌍별 점수 포함)를 subjects 에 기록
 async function saveProfScore(){
   if(profTaskScore===null) return;
   const g=(k)=>(profPairScores[k]===undefined?null:profPairScores[k]);
@@ -1137,12 +1140,12 @@ function makeEngTaskBlock(){
       stimulus:`<div class="instr" style="text-align:center">
         <div class="listen-label">Question ${i+1} / ${total}${K(' (문제 '+(i+1)+' / '+total+')')}</div>
         <div class="prof-word" style="font-size:34px;font-weight:700;margin:20px 0 6px;letter-spacing:1px">${it.prompt}</div>
-        <p style="color:var(--muted);margin-top:0">Think of the sound the <b>bold / underlined</b> letters make,<br>then find which audio contains that same sound.${KB('<b>굵게 밑줄 친</b> 글자가 내는 소리를 떠올린 뒤, 같은 소리가 들어 있는 오디오를 찾으세요.')}</p>
+        <p style="color:var(--muted);margin-top:0">Say the word aloud three times, and think about what sound the <b>bold / underlined</b> letters make. Then listen to <b>Audio A</b> and <b>Audio B</b> as many times as you like, and choose the one that contains the <b>same sound</b> as those letters.${KB('제시되는 단어를 <b>세번 소리 내어 발음</b>해보고, 강조된(굵게 밑줄 친) 철자가 만드는 소리가 무엇인지 생각해보세요. 그런 다음, <b>오디오 A</b>와 <b>오디오 B</b>를 원하는 만큼 들어 본 후, 해당 철자가 만들어내는 소리와 <b>같은 소리</b>가 들어 있는 쪽을 고르세요.')}</p>
         <div style="display:flex;gap:16px;justify-content:center;margin:26px 0 8px">
           <button type="button" id="playA" class="audio-play-btn">▶ Audio A</button>
           <button type="button" id="playB" class="audio-play-btn">▶ Audio B</button>
         </div>
-        <p style="color:var(--muted);font-size:14px">You can replay each sound as many times as you like.${KB('각 소리는 원하는 만큼 다시 들을 수 있습니다.')}</p>
+        
         <p style="margin-top:22px;font-weight:600">Which one has the same sound? ↓${KB('같은 소리가 들어 있는 것은 어느 쪽인가요?')}</p>
       </div>`,
       choices:["A", "B"],
@@ -1465,15 +1468,18 @@ async function main(){
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>Instructions${K(' / 안내')}</h2><ul>
       <li><b>Environment.</b> Wear headphones and stay in a quiet room.${KB('헤드폰을 착용하고 조용한 곳에서 참여하세요.')}</li>
-      <li><b>What you will hear.</b> You will hear a short phrase: a <b>name</b> (Davino or Gavino), sometimes with a <b>word that describes a person</b> before it, such as “thin Davino” or “thin Gavino”. Each clip plays <b>only once</b>.${KB('이름(Davino 또는 Gavino)이 나오고, 그 앞에 사람을 묘사하는 단어가 함께 나올 때도 있습니다(예: “thin Davino”). 소리는 한 번만 재생됩니다.')}</li>
-      <li><b>Task 1.</b> Choose the name you heard: <b>Davino</b> or <b>Gavino</b>. Respond quickly, based on your first impression. There are no right or wrong answers.${KB('들은 이름을 고르세요(Davino 또는 Gavino). 첫인상으로 빠르게 답하세요. 정답은 없습니다.')}</li>
-      <li><b>Task 2.</b> Sometimes a question about <b>the man you just heard about</b> follows. Choose the sentence that matches the meaning of the <b>word you heard before the name</b>.${KB('가끔 방금 들은 남자에 대한 문제가 나옵니다. 이름 앞에서 들은 단어의 뜻과 맞는 문장을 고르세요.')}</li>
-      <li><b>Duration &amp; breaks.</b> About ${ITEMS.length} trials (40–50 min), with ${N_BLOCKS-1} short self-paced breaks.${KB('약 '+ITEMS.length+'문항(40~50분)이며, 중간에 '+(N_BLOCKS-1)+'번 쉴 수 있습니다.')}</li>
+      <li><b>What you will hear.</b> This experiment consists of <b>three types</b> of sounds and questions, presented in random order.${KB('본 실험은 총 <b>3가지 유형</b>의 음성과 문제가 무작위의 순서로 구성되어 있습니다.')}
+        <ol style="margin:6px 0 0 0">
+          <li><b>Type 1:</b> You hear a person's name and choose which name you heard (Davino or Gavino).${KB('<b>첫번째:</b> 사람의 이름을 듣고 어떤 이름을 들었는지 선택하는 문제')}</li>
+          <li><b>Type 2:</b> The same task as Type 1 (choosing the name), but a <b>word that describes the person</b> comes before the name (e.g., “tall Davino”).${KB('<b>두번째:</b> 첫번째와 문제는 동일하나(사람의 이름을 선택), 사람을 묘사하는 단어가 이름 앞에 함께 나오는 유형 (예: tall Davino)')}</li>
+          <li><b>Type 3:</b> You choose the sentence that matches the meaning of the describing word you heard in the <b>immediately preceding trial</b>. For example, if the preceding trial was “tall Davino”, then between Option 1: “He always has too little hem when he buys pants.” and Option 2: “He always has to cut off the hem when he buys pants.”, Option 1 is the correct answer.${KB('<b>세번째:</b> 직전의 문항에서 들은 사람을 묘사하는 단어의 의미와 일치하는 문장을 고르는 문제 (예: 해당 문제의 직전 문항이 tall Davino 였다면, 선지1: 그는 바지를 사면 늘 밑단이 부족하다. 선지2: 그는 바지를 사면 늘 밑단을 잘라내야 한다. 중에 선지 1번을 골라야 정답입니다.)')}</li>
+        </ol></li>
+      <li><b>How to respond.</b> Each sound plays <b>only once</b>, so respond quickly, based on your first impression of which name you heard. Types 1 and 2 have no right or wrong answers. For Type 3 (meaning questions), however, there is a correct answer, so please focus on the <b>meaning of the word</b> throughout the experiment.${KB('본 실험의 음성은 모두 한번씩만 재생되오니, 들은 이름이 무엇이었는지 첫인상으로 빠르게 대답하세요. 첫번째 유형과 두번째 유형에 정답은 없습니다. 다만, 세번째 의미이해문제의 경우에는 정답이 존재하니, 실험 도중 단어의 의미에 집중해주시기 바랍니다.')}</li>
+      <li><b>Duration &amp; breaks.</b> The experiment has about ${ITEMS.length} trials (40–50 min), divided into ${N_BLOCKS} sessions with ${N_BLOCKS-1} breaks.${KB('실험은 총 약 '+ITEMS.length+'문항(40~50분)으로 구성되어 있으며, '+N_BLOCKS+'개의 세션으로 나뉘어 '+(N_BLOCKS-1)+'번의 휴식시간이 포함됩니다.')}</li>
       </ul>
-      <div class="focus-box"><b>Please pay attention to the person's characteristics.</b><br>
-        This experiment includes questions asking which person's name you heard (Davino or Gavino), and questions in which a word that describes a person comes before the name. Questions about the meaning of that described characteristic will also appear, so please focus on the characteristics of the person throughout the experiment.
-        ${KB('<b>사람의 특징에 집중해 주세요.</b><br>이 실험에는 어떤 사람의 이름(Davino 또는 Gavino)을 들었는지 구분하는 문제와, 사람을 묘사하는 단어가 이름 앞에 함께 나오는 문제가 포함되어 있습니다. 묘사된 특징의 의미를 묻는 이해 문제도 나오므로, 실험 내내 그 사람의 특징에 집중해 주세요.')}</div>
-      <p style="text-align:center">First, let's set your volume and do a few practice trials.${KB('먼저 볼륨을 맞추고 연습을 해 보겠습니다.')}</p></div>`,
+      <div class="focus-box"><b>Based on the structure above, please focus throughout the experiment on the meaning of the word that describes the person, and on who the following person is.</b>
+        ${KB('<b>앞선 실험의 구성과 내용을 참고하여, 실험 도중 사람을 묘사하는 단어의 의미와, 이어지는 사람이 누구인지에 집중하여 진행해주시길 부탁드립니다.</b>')}</div>
+      <p style="text-align:center">Before the main experiment, please do the practice trials and adjust your volume.${KB('본 실험에 들어가기 전, 연습문제를 풀고 볼륨을 알맞게 조정해주세요.')}</p></div>`,
     choices:['Next'+K(' / 다음')]});
 
   // 5-b. 볼륨 재조정 안내 (헤드폰 체크와 본 실험은 적정 음량이 다름)
@@ -1498,17 +1504,18 @@ async function main(){
   };
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>Practice 1: name only${K(' / 연습 1: 이름만 듣기')}</h2>
-      <p>First, you will hear only a name. Choose <b>Davino</b> or <b>Gavino</b>.${KB('먼저 이름만 들려줍니다. <b>Davino</b>와 <b>Gavino</b> 중 들은 것을 고르세요.')}</p></div>`,
+      <p><b>Type 1:</b> You will hear a person's name. Choose which name you heard: <b>Davino</b> or <b>Gavino</b>.${KB('<b>첫번째:</b> 사람의 이름을 듣고 어떤 이름을 들었는지 선택하는 문제')}</p></div>`,
     choices:['Start'+K(' / 시작')]});
   PRACTICE_ALONE.forEach(p=>practiceSound(p, CONT_BASE));
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>Practice 2: word + name${K(' / 연습 2: 단어 + 이름')}</h2>
-      <p>Now you will hear a <b>word that describes a person</b> followed by a name. Choose the name you heard. Then a question about the man may follow: choose the sentence that matches the word.${KB('이제 <b>사람을 묘사하는 단어</b> 뒤에 이름이 나옵니다. 들은 이름을 고르세요. 그 뒤에 그 남자에 대한 문제가 나올 수 있으며, 그 단어와 맞는 문장을 고르면 됩니다.')}</p></div>`,
+      <p><b>Type 2:</b> The same task as Type 1 (choosing the name), but a <b>word that describes the person</b> comes before the name.${KB('<b>두번째:</b> 첫번째와 문제는 동일하나(사람의 이름을 선택), 사람을 묘사하는 단어가 이름 앞에 함께 나오는 유형.')}</p>
+      <p><b>Type 3:</b> A question asking you to choose the sentence that matches the meaning of the describing word you heard in the preceding trial will appear at random, so always focus on the meaning of the word.${KB('<b>세번째:</b> 직전의 문항에서 들은 사람을 묘사하는 단어의 의미와 일치하는 문장을 고르는 문제는 무작위로 출제되오니, 항상 단어의 의미에 집중해주시길 바랍니다.')}</p></div>`,
     choices:['Start'+K(' / 시작')]});
   PRACTICE_CTX.forEach(p=>{ practiceSound(p, AUDIO_BASE); mainTimeline.push(compTrial(p.comp, 0, 0, true)); });
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>Practice complete${K(' / 연습 끝')}</h2>
-      <p>The real experiment begins now. Each sound plays <b>only once</b>, so respond based on your first impression. Please pay attention to the person's characteristics.${KB('이제 본 실험이 시작됩니다. 소리는 <b>한 번만</b> 재생되니 첫인상으로 답하세요. 그 사람의 특징에 집중해 주세요.')}</p>
+      <p>The real experiment begins now. Each sound plays <b>only once</b>, so please respond quickly, based on your first impression. Focus on the meaning of the preceding word, and on who the following person is.${KB('이제 본 실험이 시작됩니다. 소리는 <b>한 번만</b> 재생되오니, 첫인상으로 빠르게 답해주세요. 앞선 단어의 의미와, 뒤따르는 사람이 누구인지에 집중해주세요.')}</p>
       <p><b>Please keep your volume as it is now.</b>${KB('<b>지금의 볼륨을 그대로 유지해 주세요.</b>')}</p></div>`,
     choices:['Begin the experiment'+K(' / 본 실험 시작')]});
 
@@ -1525,7 +1532,7 @@ async function main(){
       mainTimeline.push({type:jsPsychHtmlButtonResponse,
         stimulus:()=>`<div class="instr" style="text-align:center"><h2>Break ${bi+1} of ${blocks.length-1}${K(' / 휴식 '+(bi+1)+' / '+(blocks.length-1))}</h2>
           <p>You've completed block ${bi+1} of ${blocks.length}.${KB('블록 '+(bi+1)+' / '+blocks.length+'을 마쳤습니다.')}</p>
-          <p style="color:var(--muted)">Take a short rest. Continue when ready.${KB('잠시 쉬세요. 준비되면 계속하세요.')}</p>
+          <p style="color:var(--muted)">This is a short break. Rest as long as you like, then continue with the next session.${KB('잠시 휴식 시간입니다. 원하시는 만큼 휴식을 취한 후 다음 세션을 이어서 진행해주세요.')}</p>
           <div class="progress-bar"><div style="width:${Math.round(gIdx/totalTrials*100)}%"></div></div>
           <p style="color:var(--muted);font-size:14px">${gIdx} / ${totalTrials}</p></div>`,
         choices:['Continue'+K(' / 계속')], on_load:()=>flushResponses(true)});
@@ -1536,7 +1543,7 @@ async function main(){
   const engAnnounce={type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>One last task${K(' / 마지막 과제')}</h2>
       <p>The main experiment is complete. Before you finish, here is a short <b>sound-matching task</b> (${ENG_TASK.length} questions).${KB('본 실험이 끝났습니다. 마치기 전에 짧은 <b>소리 맞추기 과제</b>('+ENG_TASK.length+'문제)가 있습니다.')}</p>
-      <p>A word will appear at the top with part of it in <b>bold and underlined</b>. Think of the sound those letters make. Then play <b>Audio A</b> and <b>Audio B</b> — as many times as you like — and choose the one that contains the <b>same sound</b>.${KB('위에 단어가 나오고 일부가 <b>굵게 밑줄</b>로 표시됩니다. 그 글자가 내는 소리를 떠올린 뒤, <b>오디오 A</b>와 <b>오디오 B</b>를 원하는 만큼 들어 보고 <b>같은 소리</b>가 들어 있는 쪽을 고르세요.')}</p></div>`,
+      <p>A word will appear at the top of the screen, with some of its letters in <b>bold and underlined</b>. Say the word aloud three times, and think about what sound the emphasized letters make. Then listen to <b>Audio A</b> and <b>Audio B</b> as many times as you like, and choose the one that contains the <b>same sound</b> as those letters.${KB('화면의 위쪽에 단어가 제시되고, 단어의 철자 일부가 <b>굵게 밑줄</b>로 강조되어 있습니다. 제시되는 단어를 세번 소리 내어 발음해보고, 강조된 철자가 만드는 소리가 무엇인지 생각해보세요. 그런 다음, <b>오디오 A</b>와 <b>오디오 B</b>를 원하는 만큼 들어 본 후, 해당 철자가 만들어내는 소리와 같은 소리가 들어 있는 쪽을 고르세요.')}</p></div>`,
     choices:['Start'+K(' / 시작')],
     on_load:()=>flushResponses(true)};  // 영어 과제 전에 본 실험 응답을 모두 저장
   // 안내 + 문항들을 하나의 timeline으로 묶음 (본 실험까지 온 참가자 전원)
