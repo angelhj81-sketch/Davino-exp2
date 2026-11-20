@@ -109,7 +109,7 @@ const OPT_LEFT   = "Davino";   // 선택지는 항상 왼쪽 Davino, 오른쪽 G
 const OPT_RIGHT  = "Gavino";
 
 // ▼ 테스트 스위치: true=짧게(블록당 소수), false=525 전체
-const QUICK_TEST = false;
+const QUICK_TEST = true;
 const QUICK_PER_BLOCK = 5;
 
 // 연습 자극 (본 실험에 쓰이지 않는 문항): 유형 3가지 × 2문제
@@ -1254,7 +1254,7 @@ async function main(){
   // --- preload: 헤드폰 검사음 전체 + 실험 음원 ---
   const seq = buildSession(ITEMS);           // 참가자마다 새로 무작위화 (규칙은 buildSession 참고)
   let blocks = splitBlocks(seq, N_BLOCKS);
-  if(QUICK_TEST) blocks = blocks.map(b=>b.slice(0,QUICK_PER_BLOCK));
+  if(QUICK_TEST) blocks = blocks.map(b=>b.filter(x=>x.set===b[0].set));   // 시험용: 블록마다 세트 1개(연속체 1 + 맥락 12 + 이해 2)
 
   const hpAudio=[]; HP_SET_NAMES.forEach(n=>{for(let v=1;v<=3;v++)hpAudio.push(HP_BASE+n+v+".wav");});
   hpAudio.push(HP_BASE+"HugginsPitch_calibration.wav");
