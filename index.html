@@ -79,6 +79,8 @@
   .jspsych-btn-group-grid{width:100%;max-width:640px;margin:0 auto;}
   .comp-btn .kr{display:block;font-size:14px;font-weight:400;color:var(--muted);margin-top:4px;}
   .focus-box{border:2px solid var(--accent);background:var(--accent-bg);border-radius:10px;padding:12px 16px;margin:16px 0;font-size:15px;line-height:1.6;}
+  .warn-box{border:2px solid #c0392b;background:#fdecea;color:#c0392b;border-radius:10px;padding:12px 16px;margin:16px 0;font-size:16px;line-height:1.6;text-align:center;}
+  .warn-box .ko{color:#c0392b;}
 </style>
 </head>
 <body>
@@ -87,7 +89,7 @@
 <script>
 // ============================================================
 // Davino/Gavino 지각 실험 (v3: 맥락단어 12 × 7단계 + 연속체 단독 + 이해 문항) — 전체 조립본
-// 흐름: 모바일안내 → 동의 → 설문 → 자격판정 → 헤드폰체크
+// 흐름: 모바일안내 → 동의 → 설문 → 자격판정
 //       → 지시문 → 연습 → 본실험(525: 연속체 단독 35 + 맥락+연속체 420 + 이해 70, 블록4+휴식3) → 영어 변별 과제 → 완료코드
 // ============================================================
 
@@ -675,8 +677,8 @@ const ITEMS = [
 // type: target_dz(z–dʒ 쌍) / filler_stq(tʃ–s 쌍) / other  → subjects.prof_target, prof_stq 집계에 사용
 const ENG_BASE = "eng_task/";
 const ENG_TASK = [
-  {id:1, pair:"n-ŋ", pos:"Medial", prompt:'<b>n</b>ame', correct:"environment", foil:"banquet", ts:"/n/", a1:"environment.wav", a2:"banquet.wav", answer:1, type:"other"},
-  {id:2, pair:"n-ŋ", pos:"Medial", prompt:'si<b>ng</b>', correct:"conquer", foil:"anemone", ts:"/ŋ/", a1:"conquer.wav", a2:"anemone.wav", answer:1, type:"other"},
+  {id:1, pair:"n-ŋ", pos:"Medial", prompt:'<b>n</b>ame', correct:"environment", foil:"wringer", ts:"/n/", a1:"environment.wav", a2:"wringer.wav", answer:1, type:"other"},
+  {id:2, pair:"n-ŋ", pos:"Medial", prompt:'si<b>ng</b>', correct:"gingham", foil:"anemone", ts:"/ŋ/", a1:"gingham.wav", a2:"anemone.wav", answer:1, type:"other"},
   {id:3, pair:"n-ŋ", pos:"Final", prompt:'<b>n</b>ine', correct:"campaign", foil:"meringue", ts:"/n/", a1:"campaign.wav", a2:"meringue.wav", answer:1, type:"other"},
   {id:4, pair:"n-ŋ", pos:"Final", prompt:'ki<b>ng</b>', correct:"harangue", foil:"feign", ts:"/ŋ/", a1:"harangue.wav", a2:"feign.wav", answer:1, type:"other"},
   {id:5, pair:"s-ʃ", pos:"Medial", prompt:'<b>s</b>and', correct:"fascinate", foil:"negotiate", ts:"/s/", a1:"fascinate.wav", a2:"negotiate.wav", answer:1, type:"other"},
@@ -727,7 +729,8 @@ const SPEAKER_SVG = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.
 function makeCode(){const c="ABCDEFGHJKMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return "DG-"+s;}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function randInterval(){return Math.floor(Math.random()*3)+1;}
-function slog(m){document.getElementById('savelog').textContent=m;}
+function slog(m){ const el=document.getElementById('savelog'); el.textContent=m; el.style.color=/ERROR|FAILED|locally/.test(m)?'#c0392b':'#aaa'; el.style.fontSize=/ERROR|FAILED|locally/.test(m)?'13px':'11px'; }
+let saveErrors=[];
 
 // ============================================================
 // 저장 — 배치 전송 + 실패 시 재시도 + 로컬 백업
@@ -743,9 +746,9 @@ async function flushResponses(force){
   for(let attempt=1; attempt<=3 && !ok; attempt++){
     try{
       const {error} = await sb.from('experiment_data').insert(batch);
-      if(!error){ ok=true; savedCount+=batch.length; slog(`saved ${savedCount}`); }
+      if(!error){ ok=true; saveErrors=saveErrors.filter(s=>!s.startsWith('experiment_data')); savedCount+=batch.length; slog(`saved ${savedCount}`); }
       else throw error;
-    }catch(e){ await new Promise(r=>setTimeout(r, 800*attempt)); }
+    }catch(e){ console.error('experiment_data insert failed', e); saveErrors.push('experiment_data: '+((e&&(e.message||e.details||e.code))||e)); slog('SAVE ERROR: '+((e&&e.message)||e)); await new Promise(r=>setTimeout(r, 800*attempt)); }
   }
   if(!ok){
     // 로컬 백업 (마지막 안전망)
@@ -1047,7 +1050,6 @@ function processSurvey(){
   };
   // 저장은 백그라운드 (화면 전환을 막지 않음). 실패해도 재시도.
   document.body.classList.toggle('hide-ko', A.l1==='English');
-  row.headphone_score=null; row.headphone_pass=null;
   row.eng_task_score=null; row.eng_task_n_ŋ=null; row.eng_task_s_ʃ=null; row.eng_task_tʃ_s=null; row.eng_task_l_r=null; row.eng_task_z_ʒ=null; row.eng_task_z_dʒ=null;
   SUBJ = Object.assign({}, row); delete SUBJ.eligible; delete SUBJ.exclusion_reason;   // experiment_data 에는 자격 통과자만 들어가므로 불필요
   saveSubject(row, eligible);   // subjects: 모두 저장 / experiment_data: 자격 통과자만
@@ -1059,8 +1061,8 @@ function processSurvey(){
 //  · experiment_data : 자격 통과자만, 'Survey' 행 1개 (참가자 정보 + 빈 문항 칸)
 async function insertWithRetry(table, obj){
   for(let attempt=1; attempt<=3; attempt++){
-    try{ const {error}=await sb.from(table).insert(obj); if(!error) return true; else throw error; }
-    catch(e){ await new Promise(r=>setTimeout(r,800*attempt)); }
+    try{ const {error}=await sb.from(table).insert(obj); if(!error){ saveErrors=saveErrors.filter(s=>!s.startsWith(table)); return true; } else throw error; }
+    catch(e){ console.error(table+' insert failed', e); saveErrors.push(table+': '+((e&&(e.message||e.details||e.code))||e)); slog('SAVE ERROR ('+table+'): '+((e&&e.message)||e)); await new Promise(r=>setTimeout(r,800*attempt)); }
   }
   return false;
 }
@@ -1091,8 +1093,8 @@ async function rpcScores(params){
   for(let attempt=1; attempt<=4; attempt++){
     try{
       const {error}=await sb.rpc('update_subject_scores', params);
-      if(!error){ slog('scores saved'); return true; } else throw error;
-    }catch(e){ await new Promise(r=>setTimeout(r,700*attempt)); }
+      if(!error){ saveErrors=saveErrors.filter(s=>!s.startsWith('score function')); slog('scores saved'); return true; } else throw error;
+    }catch(e){ console.error('rpc update_subject_scores failed', e); saveErrors.push('score function: '+((e&&(e.message||e.details||e.code))||e)); slog('SCORES SAVE ERROR: '+((e&&e.message)||e)); await new Promise(r=>setTimeout(r,700*attempt)); }
   }
   slog('scores save FAILED'); return false;
 }
@@ -1258,13 +1260,11 @@ async function main(){
   let blocks = splitBlocks(seq, N_BLOCKS);
   if(QUICK_TEST) blocks = blocks.map(b=>b.filter(x=>x.set===b[0].set));   // 시험용: 블록마다 세트 1개(연속체 1 + 맥락 12 + 이해 2)
 
-  const hpAudio=[]; HP_SET_NAMES.forEach(n=>{for(let v=1;v<=3;v++)hpAudio.push(HP_BASE+n+v+".wav");});
-  hpAudio.push(HP_BASE+"HugginsPitch_calibration.wav");
   const mainAudio=[...new Set(blocks.flat().filter(s=>s.a).map(s=>audioPath(s.t,s.a)))];
   const practiceAudio=[...PRACTICE_ALONE.map(p=>CONT_BASE+p.audio), ...PRACTICE_CTX.map(p=>AUDIO_BASE+p.audio)];
   const engAudio=[]; ENG_TASK.forEach(it=>{ engAudio.push(ENG_BASE+it.a1); engAudio.push(ENG_BASE+it.a2); });
 
-  timeline.push({type:jsPsychPreload, audio:[...hpAudio, ...engAudio, ...practiceAudio, ...mainAudio],
+  timeline.push({type:jsPsychPreload, audio:[...engAudio, ...practiceAudio, ...mainAudio],
     message:"<p style='color:#6b7280'>Loading… 잠시만 기다려 주세요.</p>", max_load_time:60000,
     error_message:"<p>일부 파일을 불러오지 못했습니다. 새로고침 해주세요.<br>Some files failed to load. Please refresh.</p>"});
 
@@ -1421,40 +1421,6 @@ async function main(){
   // 이후 노드는 자격 통과자만 (excluded면 실험 종료 상태)
   const notExcluded=()=>!excluded;
 
-  // --- 4. 헤드폰 체크 (통과/탈락 없음 — 안내 후 1회 실시, 점수만 기록하고 항상 통과) ---
-  const hpResult={correct:0};
-
-  timeline.push({timeline:[{type:jsPsychHtmlButtonResponse,
-    stimulus:`<div class="instr"><h2>Headphone check${K(' / 헤드폰 확인')}</h2>
-      <p>We recommend wearing <b>headphones</b> for this study.${KB('이 실험은 <b>헤드폰이나 이어폰</b> 착용을 권장합니다.')}</p>
-      <p>In the next 6 questions, you'll hear noise <b>3 times</b> in a row. All three have the same loudness, but only <b>one</b> hides a faint tone. Pick which one it was.${KB('다음 6개 문제에서 잡음(쉬이익)이 <b>3번</b> 연달아 재생됩니다. 셋 다 크기는 같지만 <b>하나에만</b> 희미한 삐— 소리가 숨어 있습니다. 그게 몇 번째인지 골라 주세요.')}</p>
-      <p style="color:var(--muted)">First set a comfortable volume with the calibration sound.${KB('먼저 조절음으로 볼륨을 편안하게 맞추세요.')}</p></div>`,
-    choices:['Start'+K(' / 시작')]}], conditional_function:notExcluded});
-
-  timeline.push({type:jsPsychAudioButtonResponse, stimulus:HP_BASE+"HugginsPitch_calibration.wav",
-    prompt:`<div class="playing"><div class="speaker">${SPEAKER_SVG}</div>
-      <div class="qtext" style="margin-bottom:10px">Volume check${K(' / 볼륨 조절')}</div>
-      <p style="color:var(--muted)">This sound is only for setting your volume. Adjust it, then continue.${KB('이 소리는 <b>볼륨 조절용</b>입니다. 편안한 크기로 맞춘 뒤 계속하세요.')}</p></div>`,
-    choices:['Volume is set'+K(' / 볼륨을 맞췄습니다')], response_allowed_while_playing:true,
-    conditional_function:notExcluded} );
-
-  // 캘리브레이션과 본 검사 사이 명확한 구분 (노이즈 혼동 방지)
-  timeline.push({timeline:[{type:jsPsychHtmlButtonResponse,
-    stimulus:`<div class="instr" style="text-align:center"><h2>Test begins now${K(' / 이제 검사를 시작합니다')}</h2>
-      <p>Volume is set. Now <b>6 questions</b> follow.${KB('볼륨 조절이 끝났습니다. 지금부터 <b>6개의 문제</b>가 나옵니다.')}</p>
-      <p>In each, you'll hear 3 noises; only <b>one</b> hides a faint tone. Pick which one (1st, 2nd, 3rd).${KB('각 문제에서 잡음이 <b>3번</b> 이어서 재생됩니다. 그중 <b>하나에만</b> 희미한 삐— 소리가 숨어 있으니, 몇 번째인지 고르세요.')}</p></div>`,
-    choices:['Start question 1'+K(' / 첫 문제 시작')]}], conditional_function:notExcluded});
-
-  // 검사 1회 실시 — 결과와 무관하게 다음으로 진행
-  timeline.push({timeline:makeHPBlock(1,hpResult), conditional_function:notExcluded});
-
-  // 완료 안내 (통과/탈락 문구 없음, 항상 같은 다음 단계로)
-  timeline.push({timeline:[{type:jsPsychHtmlButtonResponse,
-    stimulus:`<div class="instr"><h2>Check complete${K(' / 확인 완료')}</h2>
-      <p>Headphone check complete. Proceeding to the experiment.${KB('헤드폰 확인이 끝났습니다. 실험으로 넘어갑니다.')}</p></div>`,
-    choices:['Continue'+K(' / 계속')],
-    on_finish:()=>{ hpScore=hpResult.correct; saveHpScore(); }}], conditional_function:notExcluded});
-
   // --- 소리 맞추기 과제는 본 실험 종료 후 실시 (자격 통과자 전원, 아래 mainTimeline 끝부분에 배치) ---
   const engBlock=makeEngTaskBlock();
 
@@ -1466,8 +1432,8 @@ async function main(){
 
   // 5. 지시문 (한글 해석은 L1=English 참가자에게 숨겨짐)
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
-    stimulus:`<div class="instr"><h2>Instructions${K(' / 안내')}</h2><ul>
-      <li><b>Environment.</b> Wear headphones and stay in a quiet room.${KB('헤드폰을 착용하고 조용한 곳에서 참여하세요.')}</li>
+    stimulus:`<div class="instr"><h2>Instructions${K(' / 안내')}</h2>
+      <div class="warn-box"><b>This experiment must be completed with a stable internet connection, in a quiet environment, while wearing headphones.</b>${KB('<b>본 실험은 반드시 인터넷 연결상태가 안정적이고 조용한 환경에서 헤드폰을 착용한 채로 진행되어야만 합니다.</b>')}</div><ul>
       <li><b>What you will hear.</b> This experiment consists of <b>three types</b> of sounds and questions, presented in random order.${KB('본 실험은 총 <b>3가지 유형</b>의 음성과 문제가 무작위의 순서로 구성되어 있습니다.')}
         <ol style="margin:6px 0 0 0">
           <li><b>Type 1:</b> You hear a person's name and choose which name you heard (Davino or Gavino).${KB('<b>첫번째:</b> 사람의 이름을 듣고 어떤 이름을 들었는지 선택하는 문제')}</li>
@@ -1485,7 +1451,7 @@ async function main(){
   // 5-b. 볼륨 재조정 안내 (헤드폰 체크와 본 실험은 적정 음량이 다름)
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>Adjust your volume${K(' / 볼륨 조절')}</h2>
-      <p>The headphone test may have required a higher volume. From now on, you'll be listening to <b>speech</b>.${KB('헤드폰 검사에는 더 큰 볼륨이 필요했을 수 있습니다. 이제부터는 <b>사람의 목소리</b>를 듣게 됩니다.')}</p>
+      <p>From now on, you'll be listening to <b>speech</b>.${KB('이제부터 <b>사람의 목소리</b>를 듣게 됩니다.')}</p>
       <p>Use the practice sounds that follow to set a <b>comfortable and clear</b> level for the voice. Once you've set it, please keep it unchanged throughout the main experiment.${KB('이어지는 연습 소리로 목소리가 <b>편안하고 또렷하게</b> 들리는 크기로 맞추고, 본 실험 동안 그대로 유지해 주세요.')}</p></div>`,
     choices:['Start practice'+K(' / 연습 시작')]});
 
@@ -1516,6 +1482,7 @@ async function main(){
   mainTimeline.push({type:jsPsychHtmlButtonResponse,
     stimulus:`<div class="instr"><h2>Practice complete${K(' / 연습 끝')}</h2>
       <p>The real experiment begins now. Each sound plays <b>only once</b>, so please respond quickly, based on your first impression. Focus on the meaning of the preceding word, and on who the following person is.${KB('이제 본 실험이 시작됩니다. 소리는 <b>한 번만</b> 재생되오니, 첫인상으로 빠르게 답해주세요. 앞선 단어의 의미와, 뒤따르는 사람이 누구인지에 집중해주세요.')}</p>
+      <div class="warn-box"><b>This experiment must be completed with a stable internet connection, in a quiet environment, while wearing headphones.</b>${KB('<b>본 실험은 반드시 인터넷 연결상태가 안정적이고 조용한 환경에서 헤드폰을 착용한 채로 진행되어야만 합니다.</b>')}</div>
       <p><b>Please keep your volume as it is now.</b>${KB('<b>지금의 볼륨을 그대로 유지해 주세요.</b>')}</p></div>`,
     choices:['Begin the experiment'+K(' / 본 실험 시작')]});
 
@@ -1570,7 +1537,8 @@ async function main(){
         slog('final flush done, remaining: '+responseBuffer.length);
         // 저장 완료 표시 + 버튼 보이기
         const st=document.getElementById('saveStatus');
-        if(st){ st.innerHTML='Saved ✓'+K(' · 저장 완료'); st.style.color='var(--ok)'; }
+        if(st){ if(responseBuffer.length===0 && savedCount>0 && true){ st.innerHTML='Saved ✓'+K(' · 저장 완료'); st.style.color='var(--ok)'; }
+          if(saveErrors.length){ st.style.color='#c0392b'; st.innerHTML+='<br>(save problem detected — please tell the researcher / 저장에 문제가 있었습니다. 연구자에게 알려주세요)<br><small>'+saveErrors.slice(-2).join(' | ')+'</small>'; } }
         if(btnWrap) btnWrap.style.visibility='visible';
       })();
     }
