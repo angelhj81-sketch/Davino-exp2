@@ -111,7 +111,7 @@ const OPT_LEFT   = "Davino";   // 선택지는 항상 왼쪽 Davino, 오른쪽 G
 const OPT_RIGHT  = "Gavino";
 
 // ▼ 테스트 스위치: true=짧게(블록마다 세트 1개씩 = 총 60문항), false=전체 525문항 (실제 실험은 반드시 false)
-const QUICK_TEST = true;
+const QUICK_TEST = false;
 
 // 연습 자극 (본 실험에 쓰이지 않는 문항): 유형 3가지 × 2문제
 //  ① 연속체 단독: 1단계, 7단계
@@ -949,7 +949,7 @@ const surveyHTML = `<div class="survey">
       <div id="engscore-sub" class="subfield hidden">
         <label>Score / 점수 <span style="color:var(--muted)">(e.g. TOEIC 920, IELTS 7.0, OPIc AL)</span></label>
         <input type="text" id="engScore" placeholder="e.g. 920"></div></div>
-    <div class="q"><label class="qlabel">4. Have you ever lived in an English-speaking country (US, UK, Canada, Australia, etc.) for more than 6 months?<br><span style="font-weight:400;color:var(--muted)">영어권 국가(미국, 영국, 캐나다, 호주 등)에 6개월 이상 거주한 적이 있나요?</span></label>
+    <div class="q"><label class="qlabel">4. Have you ever lived in an English-speaking country (US, UK, Canada, Australia, etc.)? If so, for how many months in total?<br><span style="font-weight:400;color:var(--muted)">영어권 국가(미국, 영국, 캐나다, 호주 등)에 거주한 적이 있나요? 있다면 총 몇 개월 거주했나요?</span></label>
       <div class="opts"><div class="opt" data-q="abroad" data-v="No">아니오 / No</div><div class="opt" data-q="abroad" data-v="Yes">예 / Yes</div></div>
       <div id="abroad-sub" class="subfield hidden">
         <div class="row"><label>Country / 국가</label><input type="text" id="abroadCountry" placeholder="e.g. Canada"></div>
@@ -1014,6 +1014,7 @@ function processSurvey(){
   if(A.l1==='Korean'){
     if(!A.engtest)return{ok:false,msg:"Please answer question 3 (English proficiency test). <span class='ko'>3번(공인 영어 성적)에 답해 주세요.</span>"};
     if(!A.abroad)return{ok:false,msg:"Please answer question 4 (living abroad). <span class='ko'>4번(해외 거주)에 답해 주세요.</span>"};
+    if(A.abroad==='Yes'){ const am=parseFloat(A._abroadMonths); if(isNaN(am)||am<=0)return{ok:false,msg:"Please enter the total number of months you lived abroad (question 4). <span class='ko'>4번: 영어권 국가에 거주한 총 개월 수를 입력해 주세요.</span>"}; }
     if(!(A._majorName||'').trim())return{ok:false,msg:"Please answer question 5 (major). <span class='ko'>5번(전공)에 답해 주세요.</span>"};
   }
   if(A.l1==='English'){
