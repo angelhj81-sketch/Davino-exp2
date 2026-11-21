@@ -101,14 +101,11 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const AUDIO_BASE = "audio/";
 const CONT_BASE  = "continuum/";   // 연속체 단독 자극음 폴더
 const audioPath = (t,a)=> (t==="alone" ? CONT_BASE : AUDIO_BASE) + a;
-const HP_BASE    = "hp_audio/";
 // ▼ 보상 코드를 제출받을 구글폼 링크
 const REWARD_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdh9fPn_b1nOw_xhxGrlTHuwXMiiWkCbhanC6EM-zrxg0PV-Q/viewform";
 const N_BLOCKS   = 4;       // 블록 수 (휴식 = 블록 수 - 1)
 const MIN_GAP    = 3;       // 이해 문항 사이에 끼어야 하는 맥락 문항 최소 개수
 const MAX_GAP    = 12;      // 이해 문항 사이에 끼어야 하는 맥락 문항 최대 개수
-const HP_PASS    = 5;       // 헤드폰 체크 통과 기준 (6문제 중)
-const HP_MAX_ATTEMPTS = 2;
 const SAVE_BATCH = 20;      // N trial마다 저장
 const OPT_LEFT   = "Davino";   // 선택지는 항상 왼쪽 Davino, 오른쪽 Gavino (고정)
 const OPT_RIGHT  = "Gavino";
@@ -719,7 +716,6 @@ const ITEM_BLANK = {trial_index:null, block:null, set_no:null, item_id:null, tri
   level:null, final_sound:null, place:null, voicing:null, step:null, repetition:null, audio_file:null, question:null,
   option_left:null, option_right:null, response:null, correct_answer:null, is_correct:null, rt:null,
   follows_item_id:null, pair:null, position:null};
-let hpScore = null;              // 헤드폰 체크 점수 (6문제 중 정답 수, 참고용 기록)
 let profTaskScore = null;         // 영어 변별 과제 총점 (15문제 중 정답 수)
 let profTargetScore = null;       // z/dʒ 구분 정답 수 (0~6)
 let profPairScores = {};   // 영어 소리 맞추기: 소리 쌍별 정답 수
@@ -737,11 +733,13 @@ let saveErrors=[];
 // ============================================================
 let responseBuffer = [];
 let savedCount = 0;
+let inflight = 0;   // 전송 중인 배치 수 (마지막 저장 화면에서 모두 끝날 때까지 기다림)
 
 async function flushResponses(force){
   if(responseBuffer.length===0) return;
   if(!force && responseBuffer.length < SAVE_BATCH) return;
   const batch = responseBuffer.splice(0, responseBuffer.length);
+  inflight++;
   let ok=false;
   for(let attempt=1; attempt<=3 && !ok; attempt++){
     try{
@@ -756,6 +754,7 @@ async function flushResponses(force){
       localStorage.setItem('dg3_backup', JSON.stringify(bak)); slog('saved locally (offline)'); }
     catch(e){ responseBuffer.unshift(...batch); }  // 그래도 안되면 버퍼에 되돌림
   }
+  inflight--;
 }
 
 function queueResponse(row){ responseBuffer.push(Object.assign({}, SUBJ, ITEM_BLANK, row)); flushResponses(false); }
@@ -1019,7 +1018,8 @@ function processSurvey(){
   }
   if(A.l1==='English'){
     if(!(A._origin||'').trim())return{ok:false,msg:"Please enter your country of origin."};
-    if(!A._koreaDur||!A.koreaUnit)return{ok:false,msg:"Please answer question 4 (time in Korea)."};
+    const kd=parseFloat(A._koreaDur); if(isNaN(kd)||kd<0)return{ok:false,msg:"Please enter how long you have lived in Korea (enter 0 if less than a month)."};
+    if(kd>0&&!A.koreaUnit)return{ok:false,msg:"Please select months or years for question 4."};
     if(!A.otherlangs)return{ok:false,msg:"Please answer question 5 (other languages)."};
   }
   // 판정 (종료 조건: 나이, 청력만. 영어성적은 종료 조건 아님)
@@ -1028,7 +1028,7 @@ function processSurvey(){
   else if(isNaN(age)||age<20||age>39)reason='age';
   const eligible=(reason===null);
   let koreaMonths=null;
-  if(A.l1==='English'){const d=parseFloat(A._koreaDur);koreaMonths=(A.koreaUnit==='years')?d*12:d;}
+  if(A.l1==='English'){const d=parseFloat(A._koreaDur);koreaMonths=(d>0&&A.koreaUnit==='years')?d*12:d;}
   participantCode=makeCode();
   const row={
     participant_id:participantCode, consent:true,
@@ -1040,7 +1040,7 @@ function processSurvey(){
     major:(A.l1==='Korean')?(A._majorName||'').trim()||null:null,
     lived_abroad:A.l1==='Korean'?(A.abroad==='Yes'):null,
     abroad_country:A.abroad==='Yes'?(A._abroadCountry||'').trim()||null:null,
-    abroad_months:A.abroad==='Yes'?parseFloat(A._abroadMonths)||null:null,
+    abroad_months:A.abroad==='Yes'?(isNaN(parseFloat(A._abroadMonths))?null:parseFloat(A._abroadMonths)):null,
     origin_country:A.l1==='English'?(A._origin||'').trim():null,
     korea_months:koreaMonths,
     other_langs:A.l1==='English'?(A.otherlangs==='Yes'):null,
@@ -1097,16 +1097,6 @@ async function rpcScores(params){
     }catch(e){ console.error('rpc update_subject_scores failed', e); saveErrors.push('score function: '+((e&&(e.message||e.details||e.code))||e)); slog('SCORES SAVE ERROR: '+((e&&e.message)||e)); await new Promise(r=>setTimeout(r,700*attempt)); }
   }
   slog('scores save FAILED'); return false;
-}
-
-// 헤드폰 체크 점수: 이후 모든 행의 참가자 열에 들어가고, 점수 확인용 'Headphone check' 행도 1개 저장, subjects 에도 기록
-async function saveHpScore(){
-  if(hpScore===null) return;
-  SUBJ.headphone_score = hpScore;
-  SUBJ.headphone_pass = (hpScore>=HP_PASS);
-  queueResponse({trial_type:'Headphone check', item_id:'HP', question:'Huggins pitch (6 trials)',
-    response:String(hpScore), correct_answer:'6'});
-  await rpcScores({p_hp:hpScore, p_hp_pass:(hpScore>=HP_PASS)});
 }
 
 // 영어 소리 맞추기 점수 (30점 만점, 소리 쌍별 점수 포함)를 subjects 에 기록
@@ -1193,34 +1183,6 @@ function makeEngTaskBlock(){
   return {tl, score};
 }
 
-
-// ============================================================
-// 헤드폰 체크 블록 생성
-// ============================================================
-const HP_SET_NAMES=["HugginsPitch_set1_","HugginsPitch_set2_","HugginsPitch_set3_","HugginsPitch_set4_","HugginsPitch_set5_","HugginsPitch_set6_"];
-function makeHPBlock(attemptNum, scoreObj){
-  const tl=[];
-  const sets=shuffle(HP_SET_NAMES).map(name=>({file:name,answer:randInterval()}));
-  sets.forEach((s,i)=>{
-    // 문항 시작 신호 (짧게 표시 후 자동 진행) — 캘리브레이션/이전 소리와 확실히 구분
-    tl.push({type:jsPsychHtmlButtonResponse,
-      stimulus:`<div class="instr" style="text-align:center">
-        <div class="qtext" style="margin-bottom:12px">Question ${i+1} of 6${K(' · 문제 '+(i+1)+' / 6')}</div>
-        <p style="color:var(--muted)">Press start. You'll hear <b>3</b> noises in a row.${KB('준비되면 시작하세요. 잡음이 <b>3번</b> 이어서 재생됩니다.')}</p></div>`,
-      choices:['Play'+K(' / 소리 듣기')], });
-    // 3구간 잡음 재생
-    tl.push({type:jsPsychAudioButtonResponse, stimulus:HP_BASE+s.file+s.answer+".wav",
-      prompt:`<div class="playing"><div class="speaker">${SPEAKER_SVG}</div>
-        <div class="qtext">Question ${i+1} of 6${K(' · 문제 '+(i+1)+' / 6')}</div>
-        <p style="color:var(--muted)">Listen for the faint tone across the three noises…${KB('세 잡음 중 어디에 삐— 소리가 숨어 있는지 집중하세요.')}</p></div>`,
-      choices:[], trial_ends_after_audio:true, response_allowed_while_playing:false});
-    tl.push({type:jsPsychHtmlButtonResponse,
-      stimulus:`<div class="qtext">Which noise had the faint tone hidden inside — 1st, 2nd, or 3rd?</div>${KB('삐— 소리가 숨어 있던 잡음은 몇 번째였나요?')}`,
-      choices:['1st'+K('<br>첫 번째'),'2nd'+K('<br>두 번째'),'3rd'+K('<br>세 번째')],
-      on_finish:(d)=>{ if((d.response+1)===s.answer)scoreObj.correct++; }});
-  });
-  return tl;
-}
 
 // ============================================================
 // 메인
@@ -1530,10 +1492,11 @@ async function main(){
       (async function(){
         const start=Date.now();
         // 남은 응답을 모두 저장할 때까지 반복 (최대 20초)
-        while(responseBuffer.length>0 && Date.now()-start<20000){
+        while((responseBuffer.length>0 || inflight>0) && Date.now()-start<25000){
           await flushResponses(true);
-          if(responseBuffer.length>0) await new Promise(r=>setTimeout(r,500));
+          if(responseBuffer.length>0 || inflight>0) await new Promise(r=>setTimeout(r,400));
         }
+        if(profTaskScore!==null){ await saveProfScore(); }   // 소리 맞추기 점수를 subjects 와 experiment_data 의 모든 행에 기록 (이미 값이 있으면 그대로)
         slog('final flush done, remaining: '+responseBuffer.length);
         // 저장 완료 표시 + 버튼 보이기
         const st=document.getElementById('saveStatus');
